@@ -58,7 +58,7 @@ public Action ShowPlayerStats(int client, int args)
 			GetClientName(i, szName, sizeof(szName));
 			ReplaceString(szName, sizeof(szName), ",", NULL_STRING);
 
-			ReplyToCommand(client, "%s,%i,%i,%i,%i,%i,%i,%i,%i,%i",
+			ReplyToCommand(client, "%s,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i",
 				szName,
 				GetClientTeam(i),
 				GetEntProp(i, Prop_Send, "m_iClass"),
