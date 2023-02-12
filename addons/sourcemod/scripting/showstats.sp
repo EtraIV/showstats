@@ -1,12 +1,13 @@
 #include <sourcemod>
 #include <convars>
+#include <clients>
 #include <tf2>
 #include <tf2_stocks>
 
 #pragma newdecls required
 #pragma semicolon 1
 
-#define PLUGIN_VERSION		"2.1"
+#define PLUGIN_VERSION		"2.1.1"
 #define PLUGIN_VERSION_CVAR	"sm_showstats_version"
 
 public Plugin myinfo = {
@@ -32,7 +33,7 @@ public void OnPluginStart()
 public Action ShowPlayerStats(int client, int args)
 {
 	char szCurrentMap[PLATFORM_MAX_PATH], szNextMap[PLATFORM_MAX_PATH];
-	int iTimeLeft, iPlayers = GetClientCount(false), iMaxPlayers = GetMaxHumanPlayers();
+	int iTimeLeft, iPlayers = GetClientCount(), iMaxPlayers = GetMaxHumanPlayers();
 	ConVar cvAnon = FindConVar("sm_anonymize");
 
 	GetMapTimeLeft(iTimeLeft);
@@ -49,7 +50,7 @@ public Action ShowPlayerStats(int client, int args)
 		cvAnon ? GetConVarInt(cvAnon) : 0,
 		szCurrentMap,
 		szNextMap);
-	ReplyToCommand(client, "Name,Team,Class,Score,Kills,Deaths,Assists,Captures,Defenses,Healing");
+	ReplyToCommand(client, "Name,Team,Class,Score,Kills,Deaths,Assists,Dominations,Captures,Defenses,Healing");
 
 	for (int i = 1; i <= MaxClients; i++) {
 		if (IsClientInGame(i)) {
@@ -65,6 +66,7 @@ public Action ShowPlayerStats(int client, int args)
 				GetEntProp(GetPlayerResourceEntity(), Prop_Send, "m_iScore", _, i),
 				GetEntProp(GetPlayerResourceEntity(), Prop_Send, "m_iDeaths", _, i),
 				GetEntProp(i, Prop_Send, "m_iKillAssists"),
+				GetEntProp(i, Prop_Send, "m_iDominations"),
 				GetEntProp(i, Prop_Send, "m_iCaptures"),
 				GetEntProp(i, Prop_Send, "m_iDefenses"),
 				GetEntProp(i, Prop_Send, "m_iHealPoints")
