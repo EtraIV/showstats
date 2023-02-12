@@ -1,143 +1,77 @@
 #include <sourcemod>
+#include <convars>
 #include <tf2>
 #include <tf2_stocks>
-#include <json>
 
 #pragma newdecls required
 #pragma semicolon 1
 
-#define PLUGIN_VERSION		"2.0"
+#define PLUGIN_VERSION		"2.1"
 #define PLUGIN_VERSION_CVAR	"sm_showstats_version"
 
 public Plugin myinfo = {
 	name = "[TF2] Show Player Stats",
 	author = "Etra",
-	description = "Super simple plugin to print player stats to console in JSON.",
+	description = "Super simple plugin to print player stats to console in CSV.",
 	version = PLUGIN_VERSION,
 	url = "https://github.com/EtraIV/showstats"
 };
 
-methodmap PlayerStats < JSON_Object {
-	public PlayerStats()
-	{
-		return view_as<PlayerStats>(new JSON_Object());
-	}
-
-	public void SetName(const char[] value)
-	{
-		this.SetString("name", value);
-	}
-	
-	property TFTeam team {
-		public set(TFTeam value)
-		{
-			this.SetInt("team", view_as<int>(value));
-		}
-	}
-
-	property TFClassType class {
-		public set(TFClassType value)
-		{
-			this.SetInt("class", view_as<int>(value));
-		}
-	}
-	
-	property int score {
-		public set(int value)
-		{
-			this.SetInt("score", value);
-		}
-	}
-	
-	property int kills {
-		public set(int value)
-		{
-			this.SetInt("kills", value);
-		}
-	}
-	
-	property int deaths {
-		public set(int value)
-		{
-			this.SetInt("deaths", value);
-		}
-	
-	}
-	
-	property int assists {
-		public set(int value)
-		{
-			this.SetInt("assists", value);
-		}
-	}
-	
-	property int captures {
-		public set(int value)
-		{
-			this.SetInt("captures", value);
-		}
-	}
-	
-	property int defenses {
-		public set(int value)
-		{
-			this.SetInt("defenses", value);
-		}
-	}
-
-	property int healing {
-		public set(int value)
-		{
-			this.SetInt("healing", value);
-		}
-	}
-}
-
 ConVar g_cvVersion = null;
+ConVar g_cvRandomCrits = null;
+ConVar g_cvAlltalk = null;
 
 public void OnPluginStart()
 {
 	g_cvVersion = CreateConVar(PLUGIN_VERSION_CVAR, PLUGIN_VERSION, "Plugin version.", FCVAR_SPONLY | FCVAR_NOTIFY | FCVAR_PRINTABLEONLY);
 	RegAdminCmd("sm_showstats", ShowPlayerStats, ADMFLAG_GENERIC, "Print all player stats");
+	g_cvRandomCrits = FindConVar("tf_weapon_criticals");
+	g_cvAlltalk = FindConVar("sv_alltalk");
 }
 
 public Action ShowPlayerStats(int client, int args)
 {
-	char buffer[3072], nextmap[PLATFORM_MAX_PATH];
-	int timeleft;
-	JSON_Object stats = new JSON_Object();
-	JSON_Array players = new JSON_Array();
+	char szCurrentMap[PLATFORM_MAX_PATH], szNextMap[PLATFORM_MAX_PATH];
+	int iTimeLeft, iPlayers = GetClientCount(false), iMaxPlayers = GetMaxHumanPlayers();
+	ConVar cvAnon = FindConVar("sm_anonymize");
 
-	GetNextMap(nextmap, sizeof(nextmap));
-	GetMapTimeLeft(timeleft);
-	stats.SetString("nextmap", nextmap);
-	stats.SetInt("timeleft", timeleft);
+	GetMapTimeLeft(iTimeLeft);
+	GetCurrentMap(szCurrentMap, sizeof(szCurrentMap));
+	GetNextMap(szNextMap, sizeof(szNextMap));
+
+	ReplyToCommand(client, "Players, Max Players, Time Left, Random Crits, Alltalk, Anon Mode, Current Map, Next Map");
+	ReplyToCommand(client, "%i,%i,%i,%i,%i,%i,%s,%s",
+		iPlayers,
+		iMaxPlayers,
+		iTimeLeft,
+		GetConVarInt(g_cvRandomCrits),
+		GetConVarInt(g_cvAlltalk),
+		cvAnon ? GetConVarInt(cvAnon) : 0,
+		szCurrentMap,
+		szNextMap);
+	ReplyToCommand(client, "Name,Team,Class,Score,Kills,Deaths,Assists,Captures,Defenses,Healing");
 
 	for (int i = 1; i <= MaxClients; i++) {
 		if (IsClientInGame(i)) {
-			char name[32];
-			PlayerStats player = new PlayerStats();
-			GetClientName(i, name, sizeof(name));
+			char szName[32];
+			GetClientName(i, szName, sizeof(szName));
+			ReplaceString(szName, sizeof(szName), ",", NULL_STRING);
 
-			player.SetName(name);
-			player.team = TF2_GetClientTeam(i);
-			player.class = TF2_GetPlayerClass(i);
-			player.score = GetEntProp(GetPlayerResourceEntity(), Prop_Send, "m_iTotalScore", _, i);
-			player.kills = GetEntProp(GetPlayerResourceEntity(), Prop_Send, "m_iScore", _, i);
-			player.deaths = GetEntProp(GetPlayerResourceEntity(), Prop_Send, "m_iDeaths", _, i);
-			player.assists = GetEntProp(i, Prop_Send, "m_iKillAssists");
-			player.captures = GetEntProp(i, Prop_Send, "m_iCaptures");
-			player.defenses = GetEntProp(i, Prop_Send, "m_iDefenses");
-			player.healing = GetEntProp(i, Prop_Send, "m_iHealPoints");
-
-			players.PushObject(player);
+			ReplyToCommand(client, "%s,%i,%i,%i,%i,%i,%i,%i,%i,%i",
+				szName,
+				GetClientTeam(i),
+				GetEntProp(i, Prop_Send, "m_iClass"),
+				GetEntProp(GetPlayerResourceEntity(), Prop_Send, "m_iTotalScore", _, i),
+				GetEntProp(GetPlayerResourceEntity(), Prop_Send, "m_iScore", _, i),
+				GetEntProp(GetPlayerResourceEntity(), Prop_Send, "m_iDeaths", _, i),
+				GetEntProp(i, Prop_Send, "m_iKillAssists"),
+				GetEntProp(i, Prop_Send, "m_iCaptures"),
+				GetEntProp(i, Prop_Send, "m_iDefenses"),
+				GetEntProp(i, Prop_Send, "m_iHealPoints")
+			);
 		}
 	}
 
-	stats.SetObject("players", players);
-	stats.Encode(buffer, sizeof(buffer));
-	ReplyToCommand(client, buffer);
-
-	json_cleanup_and_delete(stats);
+	delete cvAnon;
 	return Plugin_Handled;
 }
