@@ -7,7 +7,7 @@
 #pragma newdecls required
 #pragma semicolon 1
 
-#define PLUGIN_VERSION		"2.1.5"
+#define PLUGIN_VERSION		"2.1.6"
 #define PLUGIN_VERSION_CVAR	"sm_showstats_version"
 
 public Plugin myinfo = {
@@ -54,12 +54,14 @@ public Action ShowPlayerStats(int client, int args)
 
 	for (int i = 1; i <= MaxClients; i++) {
 		if (IsClientInGame(i)) {
-			char szName[32];
+			char szName[32], szUserId[32];
 			GetClientName(i, szName, sizeof(szName));
+			GetClientAuthId(i, AuthId_Steam2, szUserId, sizeof(szUserId));
 			ReplaceString(szName, sizeof(szName), "\"", NULL_STRING);
 
-			ReplyToCommand(client, "\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%.0f",
+			ReplyToCommand(client, "\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%.0f",
 				szName,
+				szUserId,
 				GetClientTeam(i),
 				GetEntProp(i, Prop_Send, "m_iClass"),
 				GetEntProp(GetPlayerResourceEntity(), Prop_Send, "m_iTotalScore", _, i),
