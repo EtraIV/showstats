@@ -7,7 +7,7 @@
 #pragma newdecls required
 #pragma semicolon 1
 
-#define PLUGIN_VERSION		"2.1.6"
+#define PLUGIN_VERSION		"2.1.7"
 #define PLUGIN_VERSION_CVAR	"sm_showstats_version"
 
 public Plugin myinfo = {
@@ -40,8 +40,9 @@ public Action ShowPlayerStats(int client, int args)
 	GetCurrentMap(szCurrentMap, sizeof(szCurrentMap));
 	GetNextMap(szNextMap, sizeof(szNextMap));
 
-	ReplyToCommand(client, "Players,Max Players,Time Left,Random Crits,Alltalk,Anon Mode,Current Map,Next Map");
-	ReplyToCommand(client, "%i,%i,%i,%i,%i,%i,\"%s\",\"%s\"",
+	ReplyToCommand(client, "Players,Max Players,Time Left,Random Crits,Alltalk,Anon Mode,Current Map,Next Map\n\
+		%i,%i,%i,%i,%i,%i,\"%s\",\"%s\"\n\
+		Name,Team,Class,Score,Kills,Deaths,Assists,Dominations,Captures,Defenses,Damage,Healing,Time",
 		iPlayers,
 		iMaxPlayers,
 		iTimeLeft,
@@ -50,7 +51,6 @@ public Action ShowPlayerStats(int client, int args)
 		cvAnon ? GetConVarInt(cvAnon) : 0,
 		szCurrentMap,
 		szNextMap);
-	ReplyToCommand(client, "Name,Team,Class,Score,Kills,Deaths,Assists,Dominations,Captures,Defenses,Damage,Healing,Time");
 
 	for (int i = 1; i <= MaxClients; i++) {
 		if (IsClientInGame(i)) {
