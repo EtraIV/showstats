@@ -7,7 +7,7 @@
 #pragma newdecls required
 #pragma semicolon 1
 
-#define PLUGIN_VERSION		"2.1.1"
+#define PLUGIN_VERSION		"2.1.3"
 #define PLUGIN_VERSION_CVAR	"sm_showstats_version"
 
 public Plugin myinfo = {
@@ -40,8 +40,8 @@ public Action ShowPlayerStats(int client, int args)
 	GetCurrentMap(szCurrentMap, sizeof(szCurrentMap));
 	GetNextMap(szNextMap, sizeof(szNextMap));
 
-	ReplyToCommand(client, "Players, Max Players, Time Left, Random Crits, Alltalk, Anon Mode, Current Map, Next Map");
-	ReplyToCommand(client, "%i,%i,%i,%i,%i,%i,%s,%s",
+	ReplyToCommand(client, "Players,Max Players,Time Left,Random Crits,Alltalk,Anon Mode,Current Map,Next Map");
+	ReplyToCommand(client, "%i,%i,%i,%i,%i,%i,\"%s\",\"%s\"",
 		iPlayers,
 		iMaxPlayers,
 		iTimeLeft,
@@ -50,15 +50,15 @@ public Action ShowPlayerStats(int client, int args)
 		cvAnon ? GetConVarInt(cvAnon) : 0,
 		szCurrentMap,
 		szNextMap);
-	ReplyToCommand(client, "Name,Team,Class,Score,Kills,Deaths,Assists,Dominations,Captures,Defenses,Healing");
+	ReplyToCommand(client, "Name,Team,Class,Score,Kills,Deaths,Assists,Dominations,Captures,Defenses,Healing,Time");
 
 	for (int i = 1; i <= MaxClients; i++) {
 		if (IsClientInGame(i)) {
 			char szName[32];
 			GetClientName(i, szName, sizeof(szName));
-			ReplaceString(szName, sizeof(szName), ",", NULL_STRING);
+			ReplaceString(szName, sizeof(szName), "\"", NULL_STRING);
 
-			ReplyToCommand(client, "%s,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i",
+			ReplyToCommand(client, "\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%.0f",
 				szName,
 				GetClientTeam(i),
 				GetEntProp(i, Prop_Send, "m_iClass"),
@@ -69,7 +69,8 @@ public Action ShowPlayerStats(int client, int args)
 				GetEntProp(i, Prop_Send, "m_iDominations"),
 				GetEntProp(i, Prop_Send, "m_iCaptures"),
 				GetEntProp(i, Prop_Send, "m_iDefenses"),
-				GetEntProp(i, Prop_Send, "m_iHealPoints")
+				GetEntProp(i, Prop_Send, "m_iHealPoints"),
+				GetClientTime(i)
 			);
 		}
 	}
