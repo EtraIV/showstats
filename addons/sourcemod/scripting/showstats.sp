@@ -7,7 +7,7 @@
 #pragma newdecls required
 #pragma semicolon 1
 
-#define PLUGIN_VERSION		"2.1.3"
+#define PLUGIN_VERSION		"2.1.4"
 #define PLUGIN_VERSION_CVAR	"sm_showstats_version"
 
 public Plugin myinfo = {
@@ -33,7 +33,7 @@ public void OnPluginStart()
 public Action ShowPlayerStats(int client, int args)
 {
 	char szCurrentMap[PLATFORM_MAX_PATH], szNextMap[PLATFORM_MAX_PATH];
-	int iTimeLeft, iPlayers = GetClientCount(), iMaxPlayers = GetMaxHumanPlayers();
+	int iTimeLeft, iPlayers = GetClientCount(false), iMaxPlayers = GetMaxHumanPlayers();
 	ConVar cvAnon = FindConVar("sm_anonymize");
 
 	GetMapTimeLeft(iTimeLeft);
