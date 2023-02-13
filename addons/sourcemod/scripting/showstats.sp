@@ -7,7 +7,7 @@
 #pragma newdecls required
 #pragma semicolon 1
 
-#define PLUGIN_VERSION		"2.1.4"
+#define PLUGIN_VERSION		"2.1.5"
 #define PLUGIN_VERSION_CVAR	"sm_showstats_version"
 
 public Plugin myinfo = {
@@ -50,7 +50,7 @@ public Action ShowPlayerStats(int client, int args)
 		cvAnon ? GetConVarInt(cvAnon) : 0,
 		szCurrentMap,
 		szNextMap);
-	ReplyToCommand(client, "Name,Team,Class,Score,Kills,Deaths,Assists,Dominations,Captures,Defenses,Healing,Time");
+	ReplyToCommand(client, "Name,Team,Class,Score,Kills,Deaths,Assists,Dominations,Captures,Defenses,Damage,Healing,Time");
 
 	for (int i = 1; i <= MaxClients; i++) {
 		if (IsClientInGame(i)) {
@@ -58,7 +58,7 @@ public Action ShowPlayerStats(int client, int args)
 			GetClientName(i, szName, sizeof(szName));
 			ReplaceString(szName, sizeof(szName), "\"", NULL_STRING);
 
-			ReplyToCommand(client, "\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%.0f",
+			ReplyToCommand(client, "\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%.0f",
 				szName,
 				GetClientTeam(i),
 				GetEntProp(i, Prop_Send, "m_iClass"),
@@ -69,8 +69,9 @@ public Action ShowPlayerStats(int client, int args)
 				GetEntProp(i, Prop_Send, "m_iDominations"),
 				GetEntProp(i, Prop_Send, "m_iCaptures"),
 				GetEntProp(i, Prop_Send, "m_iDefenses"),
+				GetEntProp(i, Prop_Send, "m_iDamageDone"),
 				GetEntProp(i, Prop_Send, "m_iHealPoints"),
-				GetClientTime(i)
+				IsFakeClient(i) ? -1.0 : GetClientTime(i)	// Set to zero if the player is a bot to prevent error
 			);
 		}
 	}
