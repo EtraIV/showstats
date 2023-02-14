@@ -7,7 +7,7 @@
 #pragma newdecls required
 #pragma semicolon 1
 
-#define PLUGIN_VERSION		"2.1.7"
+#define PLUGIN_VERSION		"2.1.7.1"
 #define PLUGIN_VERSION_CVAR	"sm_showstats_version"
 
 public Plugin myinfo = {
@@ -42,7 +42,7 @@ public Action ShowPlayerStats(int client, int args)
 
 	ReplyToCommand(client, "Players,Max Players,Time Left,Random Crits,Alltalk,Anon Mode,Current Map,Next Map\n\
 		%i,%i,%i,%i,%i,%i,\"%s\",\"%s\"\n\
-		Name,Team,Class,Score,Kills,Deaths,Assists,Dominations,Captures,Defenses,Damage,Healing,Time",
+		Name,Steam ID,Team,Class,Score,Kills,Deaths,Assists,Dominations,Captures,Defenses,Damage,Healing,Time",
 		iPlayers,
 		iMaxPlayers,
 		iTimeLeft,
