@@ -7,7 +7,7 @@
 #pragma newdecls required
 #pragma semicolon 1
 
-#define PLUGIN_VERSION		"2.1.7.1"
+#define PLUGIN_VERSION		"2.1.8"
 #define PLUGIN_VERSION_CVAR	"sm_showstats_version"
 
 public Plugin myinfo = {
@@ -52,9 +52,9 @@ public Action ShowPlayerStats(int client, int args)
 		szCurrentMap,
 		szNextMap);
 
-	for (int i = 1; i <= MaxClients; i++) {
+	for (int i = 1; i <= 33; i++) { // Hardcoded in limit of 33 for the maximum player count of TF2, used on a server with plugins to increase max playercount.
 		if (IsClientInGame(i)) {
-			char szName[32], szUserId[32];
+			char szName[MAX_NAME_LENGTH], szUserId[MAX_AUTHID_LENGTH];
 			GetClientName(i, szName, sizeof(szName));
 			GetClientAuthId(i, AuthId_Steam2, szUserId, sizeof(szUserId));
 			ReplaceString(szName, sizeof(szName), "\"", NULL_STRING);
